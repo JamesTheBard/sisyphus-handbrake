@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sisyphus Handbrake Schema",
+  "description": "The Sisyphus HandbrakeCLI schema to import `handbrake` options.",
+  "type": "object",
+  "properties": {
+    "source": {
+      "description": "The source media file to process.",
+      "type": "string"
+    },
+    "output_file": {
+      "description": "The file to save the processed media file to.",
+      "type": "string"
+    },
+    "source_options": {
+      "description": "The source options to use.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "description": "Select a title to encode.",
+          "type": "integer",
+          "default": 1
+        },
+        "min-duration": {
+          "description": "Set the minimum title duration (in seconds).",
+          "type": "number",
+          "default": 10
+        },
+        "main-feature": {
+          "description": "Detect and select the main feature title.",
+          "type": "boolean",
+          "default": false
+        },
+        "chapters": {
+          "description": "Select chapters (e.g. '1-3' for chapters 1 to 3 or '3' for chapter 3 only, default: all chapters)",
+          "type": "string"
+        },
+        "angle": {
+          "description": "Select the video angle (DVD or Blu-ray only).",
+          "type": "integer"
+        },
+        "previews": {
+          "description": "Select how many preview images are generated and stored to the disk.",
+          "type": "integer",
+          "default": 10
+        },
+        "start-at-preview": {
+          "description": "Start encoding at a given preview.",
+          "type": "integer"
+        },
+        "start-at": {
+          "description": "Start encoding at a given offset in seconds, frames, or pts (on a 90kHz clock) (e.g. seconds:10, frames:300, pts:900000). Units must match --stop-at units, if specified",
+          "type": "object",
+          "properties": {
+            "frames": {
+              "description": "The frame number to start at.",
+              "type": "integer"
+            },
+            "seconds": {
+              "description": "The time-code to start at (in seconds).",
+              "type": "number"
+            },
+            "pts": {
+              "description": "The presentation timestamp to start at (based on a 90 kHz clock).",
+              "type": "integer"
+            }
+          }
+        },
+        "stop-at": {
+          "description": "Stop encoding at a given offset in seconds, frames, or pts (on a 90kHz clock) (e.g. seconds:10, frames:300, pts:900000). Units must match --start-at units, if specified",
+          "type": "object",
+          "properties": {
+            "frames": {
+              "description": "The frame number to start at.",
+              "type": "integer"
+            },
+            "seconds": {
+              "description": "The time-code to start at (in seconds).",
+              "type": "number"
+            },
+            "pts": {
+              "description": "The presentation timestamp to start at (based on a 90 kHz clock).",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "destination_options": {
+      "description": "The destination options to use.",
+      "type": "object",
+      "properties": {
+        "format": {
+          "description": "The container format to use, auto-detected by 'output_file' value by default.",
+          "type": "string",
+          "enum": [
+            "av_mp4",
+            "av_mkv",
+            "av_webm"
+          ]
+        },
+        "markers": {
+          "description": "Add chapter markers.",
+          "type": "boolean"
+        },
+        "optimize": {
+          "description": "Optimize MP4 files for HTTP streaming.",
+          "type": "boolean",
+          "default": false
+        },
+        "ipod-atom": {
+          "description": "Add iPod 5G compatibility atom to MP4 container.",
+          "type": "boolean",
+          "default": false
+        },
+        "align-av": {
+          "description": "Add audio silence or black video frames to start of streams so that all streams start at exactly the same time",
+          "type": "boolean",
+          "default": false
+        },
+        "inline-parameter-sets": {
+          "description": "Create adaptive streaming compatible output. Inserts parameter sets (SPS and PPS) inline in the video stream before each IDR.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "video_options": {
+      "description": "Handbrake CLI video encoding/processing options.",
+      "type": "object",
+      "properties": {
+        "encoder": {
+          "description": "Set the encoder to use.",
+          "type": "string",
+          "enum": [
+            "svt_av1",
+            "svt_av1_10bit",
+            "x264",
+            "x264_10bit",
+            "nvenc_h264",
+            "x265",
+            "x265_10bit",
+            "x265_12bit",
+            "nvenc_h265",
+            "nvenv_h265_10bit",
+            "nvenc_h265_12bit",
+            "mpeg2",
+            "mpeg4",
+            "VP8",
+            "VP9",
+            "theora"
+          ]
+        },
+        "encoder-preset": {
+          "description": "Adjust video encoding settings for a particular speed/efficiency tradeoff (encoder-specific)",
+          "type": "string"
+        },
+        "encoder-tune": {
+          "description": "Adjust video encoding settings for a particular type of source or situation (encoder-specific)",
+          "type": "string"
+        },
+        "encopts": {
+          "description": "Specify advanced encoding options (except 'theora'). Settings should be defined as key: value in this section and will be translated to look like 'mencoder'.  Encoder options without values should be set to null.",
+          "type": "object"
+        },
+        "encoder-profile": {
+          "description": "Ensure compliance with the requested codec profile (encoder-specific)",
+          "type": "string"
+        },
+        "encoder-level": {
+          "description": "Ensures compliance with the requested codec level (encoder-specific)",
+          "type": "string"
+        },
+        "quality": {
+          "description": "Set video quality (e.g. 22.0)",
+          "type": "number"
+        },
+        "vb": {
+          "description": "Set video bitrate in kbit/s (default: 1000)",
+          "type": "integer"
+        },
+        "two-pass": {
+          "description": "Use two-pass mode.",
+          "type": "boolean",
+          "default": false
+        },
+        "turbo": {
+          "description": "When using 2-pass use 'turbo' options on the first pass to improve speed (works with x264 and x265)",
+          "type": "boolean",
+          "default": false
+        },
+        "rate": {
+          "description": "Set video framerate (5/10/12/15/20/23.976/24/25/29.97/30/48/50/59.94/60/72/75/90/100/120 or a number between 1 and 1000). Be aware that not specifying a framerate lets HandBrake preserve a source's time stamps, potentially creating variable framerate video",
+          "type": "number"
+        },
+        "vfr": {
+          "description": "Select variable frame rate control.",
+          "type": "boolean"
+        },
+        "cfr": {
+          "description": "Select constant frame rate control.",
+          "type": "boolean"
+        },
+        "pfr": {
+          "description": "Select peak frame rate control.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

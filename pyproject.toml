@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "sisyphus-handbrake"
+version = "1.0.0a1"
+description = ""
+authors = ["JamesTheBard <jamesthebard@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
