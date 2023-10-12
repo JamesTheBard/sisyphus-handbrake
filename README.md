@@ -12,6 +12,8 @@ All of the option information is documented in the schema file.  Included is the
 
 ## Quick Example
 
+### Input
+
 ```json
 {
     "source": "cool_video.mkv",
@@ -35,6 +37,12 @@ All of the option information is documented in the schema file.  Included is the
         ]
     }
 }
+```
+
+### Output
+
+```
+'/path/to/HandBrakeCLI.exe' --input cool_video.mkv --output output.mkv --encoder x265_10bit --encoder-preset slow --quality 19 --audio 1,3 --aencoder opus,opus --ab 128,192 --mixdown stereo,5_2_lfe --subtitle 1,2 --subname 'Signs and Songs,Full Subtitles'
 ```
 
 ## Command Line Options
