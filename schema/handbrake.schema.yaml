@@ -1,0 +1,487 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Sisyphus Handbrake Schema
+description: The Sisyphus HandbrakeCLI schema to import `handbrake` options.
+type: object
+properties:
+  source:
+    description: The source media file to process.
+    type: string
+  output_file:
+    description: The file to save the processed media file to.
+    type: string
+  source_options:
+    description: The source options to use.
+    type: object
+    properties:
+      title:
+        description: Select a title to encode.
+        type: integer
+        default: 1
+      min_duration:
+        description: Set the minimum title duration (in seconds).
+        type: number
+        default: 10
+      main_feature:
+        description: Detect and select the main feature title.
+        type: boolean
+        default: false
+      chapters:
+        description: "Select chapters (e.g. '1-3' for chapters 1 to 3 or '3' for chapter 3 only, default: all chapters)"
+        type: string
+      angle:
+        description: Select the video angle (DVD or Blu-ray only).
+        type: integer
+      previews:
+        description: Select how many preview images are generated and stored to the disk.
+        type: integer
+        default: 10
+      start_at_preview:
+        description: Start encoding at a given preview.
+        type: integer
+      start_at:
+        description: Start encoding at a given offset in seconds, frames, or pts (on a 90kHz clock) (e.g. seconds:10, frames:300, pts:900000). Units must match --stop-at units, if specified
+        type: object
+        properties:
+          frames:
+            description: The frame number to start at.
+            type: integer
+          seconds:
+            description: The time-code to start at (in seconds).
+            type: number
+          pts:
+            description: The presentation timestamp to start at (based on a 90 kHz clock).
+            type: integer
+      stop_at:
+        description: Stop encoding at a given offset in seconds, frames, or pts (on a 90kHz clock) (e.g. seconds:10, frames:300, pts:900000). Units must match --start-at units, if specified
+        type: object
+        properties:
+          frames:
+            description: The frame number to start at.
+            type: integer
+          seconds:
+            description: The time-code to start at (in seconds).
+            type: number
+          pts:
+            description: The presentation timestamp to start at (based on a 90 kHz clock).
+            type: integer
+    additionalProperties: false
+  destination_options:
+    description: The destination options to use.
+    type: object
+    properties:
+      format:
+        description: The container format to use, auto-detected by 'output_file' value by default.
+        type: string
+        enum:
+          - av_mp4
+          - av_mkv
+          - av_webm
+      markers:
+        description: Add chapter markers.
+        type: boolean
+      optimize:
+        description: Optimize MP4 files for HTTP streaming.
+        type: boolean
+        default: false
+      ipod_atom:
+        description: Add iPod 5G compatibility atom to MP4 container.
+        type: boolean
+        default: false
+      align_av:
+        description: Add audio silence or black video frames to start of streams so that all streams start at exactly the same time
+        type: boolean
+        default: false
+      inline_parameter_sets:
+        description: Create adaptive streaming compatible output. Inserts parameter sets (SPS and PPS) inline in the video stream before each IDR.
+        type: boolean
+        default: false
+  video_options:
+    description: Handbrake CLI video encoding/processing options.
+    type: object
+    properties:
+      encoder:
+        description: Set the encoder to use.
+        type: string
+        enum:
+          - svt_av1
+          - svt_av1_10bit
+          - x264
+          - x264_10bit
+          - nvenc_h264
+          - x265
+          - x265_10bit
+          - x265_12bit
+          - nvenc_h265
+          - nvenv_h265_10bit
+          - nvenc_h265_12bit
+          - mpeg2
+          - mpeg4
+          - VP8
+          - VP9
+          - theora
+      encoder_preset:
+        description: Adjust video encoding settings for a particular speed/efficiency tradeoff (encoder-specific)
+        type: string
+      encoder_tune:
+        description: Adjust video encoding settings for a particular type of source or situation (encoder-specific)
+        type: string
+      encopts:
+        description: "Specify advanced encoding options (except 'theora'). Settings should be defined as key: value in this section and will be translated to look like 'mencoder'.  Encoder options without values should be set to null."
+        type: object
+      encoder_profile:
+        description: Ensure compliance with the requested codec profile (encoder-specific)
+        type: string
+      encoder_level:
+        description: Ensures compliance with the requested codec level (encoder-specific)
+        type: string
+      quality:
+        description: Set video quality (e.g. 22.0)
+        type: number
+      vb:
+        description: "Set video bitrate in kbit/s (default: 1000)"
+        type: integer
+      two_pass:
+        description: Use two-pass mode.
+        type: boolean
+        default: false
+      turbo:
+        description: When using 2-pass use 'turbo' options on the first pass to improve speed (works with x264 and x265)
+        type: boolean
+        default: false
+      rate:
+        description: Set video framerate (5/10/12/15/20/23.976/24/25/29.97/30/48/50/59.94/60/72/75/90/100/120 or a number between 1 and 1000). Be aware that not specifying a framerate lets HandBrake preserve a source's time stamps, potentially creating variable framerate video
+        type: number
+      vfr:
+        description: Select variable frame rate control.
+        type: boolean
+      cfr:
+        description: Select constant frame rate control.
+        type: boolean
+      pfr:
+        description: Select peak frame rate control.
+        type: boolean
+  audio_options:
+    description: The Handbrake command-line options for processing audio.
+    type: object
+    properties:
+      audio_lang_list:
+        description: Specify a list of audio languages you would like to select from the source title. By default, the first audio matching each language will be added to your output. Provide the language's ISO 639-2 code (e.g. fre, eng, spa, dut, et cetera). Use code 'und' (Unknown) to match all languages.
+        type: array
+        items:
+          type: string
+      all_audio:
+        description: Select all audio tracks matching languages in the specified language list (--audio-lang-list). Any language if list is not specified.
+        type: boolean
+      first_audio:
+        description: Select first audio track matching languages in the specified language list (--audio-lang-list). Any language if list is not specified.
+        type: boolean
+      audio:
+        description: "Select audio track(s) specified as a list. ('null' for no audio, '1,2,3' for multiple tracks, default: first one). Multiple output tracks can be used for one input."
+        type:
+          - array
+          - "null"
+        items:
+          type: integer
+      aencoder:
+        description: The audio encoder to use. 'copy:<type>' will pass through the corresponding audio track without modification, if pass through is supported for the audio type.
+        type: array
+        items:
+          type: string
+          enum:
+            - none
+            - fdk_aac
+            - fdk_haac
+            - av_aac
+            - copy:aac
+            - ac3
+            - copy:ac3
+            - eac3
+            - copy:eac3
+            - copy:truehd
+            - copy:dts
+            - copy:dtshd
+            - copy:mp2
+            - mp3
+            - copy:mp3
+            - vorbis
+            - flac16
+            - flac24
+            - copy:flac
+            - opus
+            - copy:opus
+            - copy
+      audio_copy_mask:
+        description: Set audio codecs that are permitted when the 'copy' audio encoder option is specified (aac/ac3/eac3/truehd/dts/dtshd/mp2/mp3/flac/opus).
+        type: array
+        items:
+          type: string
+      audio_fallback:
+        description: Set audio codec to use when it is not possible to copy an audio track without re-encoding.
+        type: string
+      ab:
+        description: "Set audio track bitrate(s) in kbit/s (default: determined by the selected codec, mixdown, and samplerate combination)."
+        type: array
+        items:
+          type: integer
+      ac:
+        description: Set audio compression metric (available depending on selected codec).
+        type: array
+        items:
+          type: number
+      mixdown:
+        description: Format(s) for audio downmixing/upmixing.
+        type: array
+        items:
+          type: string
+          enum:
+            - mono
+            - left_only
+            - right_only
+            - stereo
+            - dpl1
+            - dpl2
+            - 5point1
+            - 6point1
+            - 7point1
+            - 5_2_lfe
+      normalize_mix:
+        description: Normalize audio mix levels to prevent clipping.
+        type: array
+        items:
+          type: boolean
+      arate:
+        description: Set audio samplerate(s) (8/11.025/12/16/22.05/24/32/44.1/48 kHz) or 'auto'.
+        type: array
+        items:
+          type: number
+      drc:
+        description: Apply extra dynamic range compression to the audio, making soft sounds louder. Range is 1.0 to 4.0 (too loud), with 1.5 - 2.5 being a useful range.
+        type: array
+        items:
+          type: number
+          minimum: 1
+          maximum: 4
+      gain:
+        description: Amplify or attenuate audio before encoding.  Does NOT work with audio passthru (copy). Values are in dB.  Negative values attenuate, positive values amplify. A 1 dB difference is barely audible.
+        type: array
+        items:
+          type: number
+      adither:
+        description: Select dithering to apply before encoding audio. Only applies to 'flac16'.
+        type: array
+        items:
+          type: string
+          enum:
+            - auto
+            - none
+            - rectangular
+            - triangular
+            - triangular_hp
+            - lipshitz_ns
+      aname:
+        description: Set audio track name(s).
+        type: array
+        items:
+          type: string
+  picture_options:
+    description: The picture manipulation options for HandBrake CLI.
+    type: object
+    properties:
+      width:
+        description: Set storage width in pixels.
+        type: integer
+      height:
+        description: Set storage height in pixels
+        type: integer
+      crop_mode:
+        description: Choose which crop mode to operate in.
+        type: string
+        enum:
+          - auto
+          - conservative
+          - none
+          - custom
+        default: auto
+      crop:
+        description: Set picture cropping in pixels.
+        type: object
+        properties:
+          top:
+            description: The pixels to crop from the top of the picture.
+            type: integer
+          bottom:
+            description: The pixels to crop from the bottom of the picture.
+            type: integer
+          left:
+            description: The pixels to crop from the left side of the picture.
+            type: integer
+          right:
+            description: The pixels to crop from the right side of the picture.
+            type: integer
+      crop_threshold_pixels:
+        description: Number of pixels difference before we consider the frame to be a different aspect ratio.
+        type: integer
+        default: 9
+      crop_threshold_frames:
+        description: "Number of frames that must be different to trigger smart crop (default: 4, 6 or 8 scaling with preview count)"
+        type: integer
+      max_height:
+        description: Set maximum height in pixels
+        type: integer
+      max_width:
+        description: Set maximum width in pixels
+        type: integer
+      non_anamorphic:
+        description: Set pixel aspect ratio to 1:1
+        type: boolean
+      auto_anamorphic:
+        description: Store pixel aspect ratio that maximizes storage resolution
+        type: boolean
+      loose_anamorphic:
+        description: Store pixel aspect ratio that is as close as possible to the source video pixel aspect ratio
+        type: boolean
+      custom_anamorphic:
+        description: Store pixel aspect ratio in video stream and directly control all parameters.
+        type: boolean
+      display_width:
+        description: Set display width in pixels, for custom anamorphic. This determines the display aspect during playback, which may differ from the storage aspect.
+        type: integer
+      keep_display_aspect:
+        description: Preserve the source's display aspect ratio when using custom anamorphic
+        type: boolean
+      pixel_aspect:
+        description: Set pixel aspect for custom anamorphic (--display-width and --pixel-aspect are mutually exclusive. This should be in the format of <par_x>:<par_y>
+        type: string
+      itu_par:
+        description: Use wider ITU pixel aspect values for loose and custom anamorphic, useful with underscanned sources
+        type: boolean
+      modulus:
+        description: "Set storage width and height modulus. Dimensions will be made divisible by this number (default: set by preset, typically 2)"
+        type: integer
+      color_matrix:
+        description: Set the color space signaled by the output, overrides color signalling with no conversion.
+        type: string
+        enum:
+          - "2020"
+          - "709"
+          - "601"
+          - ntsc
+          - pal
+  filters_options:
+    description: Source processing filter options for HandBrake
+    type: object
+    properties:
+      comb_detect:
+        description: Detect interlace artifacts in frames. If not accompanied by the decomb or deinterlace filters, this filter only logs the interlaced frame count to the activity log. If accompanied by the decomb or deinterlace filters, it causes these filters to selectively deinterlace only those frames where interlacing is detected.
+        type:
+          - object
+          - boolean
+        properties:
+          presets:
+            description: Preset comb detect settings.
+            type: string
+            enum:
+              - permissive
+              - fast
+          custom:
+            description: Custom comb detect settings.
+            type: object
+            properties:
+              mode:
+                description: Comb detect mode
+                type: integer
+                default: 3
+              spatial_metric:
+                description: Comb detect spatial metric
+                type: integer
+                default: 2
+              motion_thresh:
+                description: Comb detect motion threshold
+                type: integer
+                default: 1
+              spatial_thresh:
+                description: Comb detect spatial threshold
+                type: integer
+                default: 1
+              filter_mode:
+                description: Comb detect filter mode
+                type: integer
+                default: 2
+              block_thresh:
+                description: Comb detect block threshold
+                type: integer
+                default: 40
+              block_width:
+                description: Comb detect block width
+                type: integer
+                default: 16
+              block_height:
+                description: Comb detect block height
+                type: integer
+                default: 16
+            additionalProperties: false
+        oneOf:
+          - required:
+              - presets
+            type: object
+            maxProperties: 1
+          - required:
+              - custom
+            type: object
+            maxProperties: 1
+          - type: boolean
+        additionalProperties: false
+      deinterlace:
+        description: Deinterlace video using FFmpeg yadif.
+        type: object
+        properties:
+          preset:
+            description: Ffmpeg yadif preset to use.
+            type: string
+            enum:
+              - skip-spatial
+              - bob
+              - qsv
+          mode:
+            description: Deinterlace mode
+            type: integer
+            default: 3
+          parity:
+            description: Deinterlace parity
+            type: integer
+        oneOf:
+          - required:
+            - preset
+            maxProperties: 1
+          - not:
+              required:
+                - preset
+        additionalProperties: false
+      bwdif:
+        description: Deinterlace video using FFmpeg bwdif.
+        type:
+          - object
+        properties:
+          preset:
+            description: The FFmpeg bwdif preset to use.
+            type: string
+            enum:
+              - bob
+          mode:
+            description: The FFmpeg bwdif mode to use.
+            type: integer
+            default: 3
+          parity:
+            description: The Ffmpeg bwdif parity to use.
+            type: integer
+        oneOf:
+          - required:
+            - preset
+            maxProperties: 1
+          - not:
+              required:
+                - preset
+        additionalProperties: false
+required:
+  - source
+  - output_file

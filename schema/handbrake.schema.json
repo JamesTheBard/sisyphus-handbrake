@@ -84,7 +84,8 @@
             }
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "destination_options": {
       "description": "The destination options to use.",
@@ -475,6 +476,180 @@
           ]
         }
       }
+    },
+    "filters_options": {
+      "description": "Source processing filter options for HandBrake",
+      "type": "object",
+      "properties": {
+        "comb_detect": {
+          "description": "Detect interlace artifacts in frames. If not accompanied by the decomb or deinterlace filters, this filter only logs the interlaced frame count to the activity log. If accompanied by the decomb or deinterlace filters, it causes these filters to selectively deinterlace only those frames where interlacing is detected.",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "properties": {
+            "presets": {
+              "description": "Preset comb detect settings.",
+              "type": "string",
+              "enum": [
+                "permissive",
+                "fast"
+              ]
+            },
+            "custom": {
+              "description": "Custom comb detect settings.",
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "description": "Comb detect mode",
+                  "type": "integer",
+                  "default": 3
+                },
+                "spatial_metric": {
+                  "description": "Comb detect spatial metric",
+                  "type": "integer",
+                  "default": 2
+                },
+                "motion_thresh": {
+                  "description": "Comb detect motion threshold",
+                  "type": "integer",
+                  "default": 1
+                },
+                "spatial_thresh": {
+                  "description": "Comb detect spatial threshold",
+                  "type": "integer",
+                  "default": 1
+                },
+                "filter_mode": {
+                  "description": "Comb detect filter mode",
+                  "type": "integer",
+                  "default": 2
+                },
+                "block_thresh": {
+                  "description": "Comb detect block threshold",
+                  "type": "integer",
+                  "default": 40
+                },
+                "block_width": {
+                  "description": "Comb detect block width",
+                  "type": "integer",
+                  "default": 16
+                },
+                "block_height": {
+                  "description": "Comb detect block height",
+                  "type": "integer",
+                  "default": 16
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "presets"
+              ],
+              "type": "object",
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "type": "object",
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "additionalProperties": false
+        },
+        "deinterlace": {
+          "description": "Deinterlace video using FFmpeg yadif.",
+          "type": "object",
+          "properties": {
+            "preset": {
+              "description": "Ffmpeg yadif preset to use.",
+              "type": "string",
+              "enum": [
+                "skip-spatial",
+                "bob",
+                "qsv"
+              ]
+            },
+            "mode": {
+              "description": "Deinterlace mode",
+              "type": "integer",
+              "default": 3
+            },
+            "parity": {
+              "description": "Deinterlace parity",
+              "type": "integer"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "not": {
+                "required": [
+                  "preset"
+                ]
+              }
+            }
+          ],
+          "additionalProperties": false
+        },
+        "bwdif": {
+          "description": "Deinterlace video using FFmpeg bwdif.",
+          "type": [
+            "object"
+          ],
+          "properties": {
+            "preset": {
+              "description": "The FFmpeg bwdif preset to use.",
+              "type": "string",
+              "enum": [
+                "bob"
+              ]
+            },
+            "mode": {
+              "description": "The FFmpeg bwdif mode to use.",
+              "type": "integer",
+              "default": 3
+            },
+            "parity": {
+              "description": "The Ffmpeg bwdif parity to use.",
+              "type": "integer"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "not": {
+                "required": [
+                  "preset"
+                ]
+              }
+            }
+          ],
+          "additionalProperties": false
+        }
+      }
     }
-  }
+  },
+  "required": [
+    "source",
+    "output_file"
+  ]
 }
