@@ -64,7 +64,27 @@
             "pts": {
               "description": "The presentation timestamp to start at (based on a 90 kHz clock).",
               "type": "integer"
-            }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "frames"
+                ],
+                "maxProperties": 1
+              },
+              {
+                "required": [
+                  "seconds"
+                ],
+                "maxProperties": 1
+              },
+              {
+                "required": [
+                  "pts"
+                ],
+                "maxProperties": 1
+              }
+            ]
           }
         },
         "stop_at": {
@@ -125,14 +145,15 @@
           "type": "boolean",
           "default": false
         }
-      }
+      },
+      "additionalProperties": false
     },
     "video_options": {
       "description": "Handbrake CLI video encoding/processing options.",
       "type": "object",
       "properties": {
         "encoder": {
-          "description": "Set the encoder to use.",
+          "description": "Set the encoder to use. Encoder options are case-sensitive.",
           "type": "string",
           "enum": [
             "svt_av1",
@@ -207,7 +228,8 @@
           "description": "Select peak frame rate control.",
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "audio_options": {
       "description": "The Handbrake command-line options for processing audio.",
@@ -365,7 +387,8 @@
             "type": "string"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "picture_options": {
       "description": "The picture manipulation options for HandBrake CLI.",
@@ -1445,7 +1468,8 @@
           "type": "boolean",
           "default": false
         }
-      }
+      },
+      "additionalProperties": false
     },
     "subtitles_options": {
       "description": "The subtitle processing options for HandBrake",
@@ -1615,11 +1639,13 @@
             "integer"
           ]
         }
-      }
+      },
+      "additionalProperties": false
     }
   },
   "required": [
     "source",
     "output_file"
-  ]
+  ],
+  "additionalProperties": false
 }

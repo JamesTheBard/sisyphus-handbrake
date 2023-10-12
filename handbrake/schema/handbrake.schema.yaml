@@ -52,6 +52,16 @@ properties:
           pts:
             description: The presentation timestamp to start at (based on a 90 kHz clock).
             type: integer
+        oneOf:
+          - required:
+              - frames
+            maxProperties: 1
+          - required:
+              - seconds
+            maxProperties: 1
+          - required:
+              - pts
+            maxProperties: 1
       stop_at:
         description: Stop encoding at a given offset in seconds, frames, or pts (on a 90kHz clock) (e.g. seconds:10, frames:300, pts:900000). Units must match --start-at units, if specified
         type: object
@@ -96,12 +106,13 @@ properties:
         description: Create adaptive streaming compatible output. Inserts parameter sets (SPS and PPS) inline in the video stream before each IDR.
         type: boolean
         default: false
+    additionalProperties: false
   video_options:
     description: Handbrake CLI video encoding/processing options.
     type: object
     properties:
       encoder:
-        description: Set the encoder to use.
+        description: Set the encoder to use. Encoder options are case-sensitive.
         type: string
         enum:
           - svt_av1
@@ -161,6 +172,13 @@ properties:
       pfr:
         description: Select peak frame rate control.
         type: boolean
+      enable_hw_decoding:
+        description: Use 'nvdec' to enable 'nvdec'
+        type: boolean
+      disable_hw_decoding:
+        description: Disable hardware decoding of the video track forcing software decoding instead.
+        type: boolean
+    additionalProperties: false
   audio_options:
     description: The Handbrake command-line options for processing audio.
     type: object
@@ -284,6 +302,7 @@ properties:
         type: array
         items:
           type: string
+    additionalProperties: false
   picture_options:
     description: The picture manipulation options for HandBrake CLI.
     type: object
@@ -595,6 +614,7 @@ properties:
             type: number
         oneOf:
           - minProperties: 1
+            type: object
           - type: boolean
       hqdn3d:
         description: Denoise video with `hqdn3d` filter
@@ -1058,6 +1078,7 @@ properties:
         description: Enable grayscale encoding
         type: boolean
         default: false
+    additionalProperties: false
   subtitles_options:
     description: The subtitle processing options for HandBrake
     type: object
@@ -1185,6 +1206,8 @@ properties:
         type:
           - boolean
           - integer
+    additionalProperties: false
 required:
   - source
   - output_file
+additionalProperties: false
