@@ -1,14 +1,15 @@
-import yaml
 import json
 import os
-from typing import List, Union, Optional, Any
-import jsonschema
-import shutil
 import platform
-from loguru import logger
-
+import shlex
+import shutil
 from pathlib import Path
+from typing import Any, List, Optional, Union
+
+import jsonschema
+import yaml
 from box import Box
+from loguru import logger
 
 # The location of the schema file
 schema_file = 'schema/handbrake.schema.yaml'
@@ -98,7 +99,7 @@ class Parser:
             f = getattr(self, f"process_{k}")
             command.extend(f())
         if as_string:
-            return ' '.join(command)
+            return shlex.join(command)
         return command
 
     def __convert_cli_option(self, option: str) -> str:

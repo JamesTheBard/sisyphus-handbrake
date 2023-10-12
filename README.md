@@ -10,6 +10,33 @@ As with the other `sisyphus` modules, you can pass a JSON file to the parser and
 
 All of the option information is documented in the schema file.  Included is the JSON schema file in JSON and YAML formats.
 
+## Quick Example
+
+```json
+{
+    "source": "cool_video.mkv",
+    "output_file": "output.mkv",
+    "video_options": {
+        "encoder": "x265_10bit",
+        "encoder_preset": "slow",
+        "quality": 19
+    },
+    "audio_options": {
+        "audio": [1, 3],
+        "aencoder": ["opus", "opus"],
+        "ab": [128, 192],
+        "mixdown": ["stereo", "5_2_lfe"]
+    },
+    "subtitles_options": {
+        "subtitle": [1, 2],
+        "subname": [
+            "Signs and Songs",
+            "Full Subtitles"
+        ]
+    }
+}
+```
+
 ## Command Line Options
 
 For all of the options listed in the documentation/`-h` option, there are a few "gotchas".

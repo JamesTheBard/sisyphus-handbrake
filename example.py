@@ -1,25 +1,28 @@
-from handbrake.parser import Parser
 import jsonschema
 from loguru import logger
 
+from handbrake.parser import Parser
+
 handbrake_data = {
-    "source": "test.mkv",
+    "source": "cool_video.mkv",
     "output_file": "output.mkv",
-    "subtitles_options": {
-        "subtitle_lang_list": [
-            "jpn",
-            "eng"
-        ],
-        "subtitle_forced": False,
-        "native_language": "eng",
-        "subtitle": [1, 2, 3, 4, 5]
-    },
     "video_options": {
         "encoder": "x265_10bit",
-        "encopts": {
-            "profile": "slow",
-            "b-frames": "100"
-        }
+        "encoder_preset": "slow",
+        "quality": 19
+    },
+    "audio_options": {
+        "audio": [1, 3],
+        "aencoder": ["opus", "opus"],
+        "ab": [128, 192],
+        "mixdown": ["stereo", "5_2_lfe"]
+    },
+    "subtitles_options": {
+        "subtitle": [1, 2],
+        "subname": [
+            "Signs and Songs",
+            "Full Subtitles"
+        ]
     }
 }
 
