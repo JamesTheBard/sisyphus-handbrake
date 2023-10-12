@@ -64,28 +64,28 @@
             "pts": {
               "description": "The presentation timestamp to start at (based on a 90 kHz clock).",
               "type": "integer"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "frames"
+              ],
+              "maxProperties": 1
             },
-            "oneOf": [
-              {
-                "required": [
-                  "frames"
-                ],
-                "maxProperties": 1
-              },
-              {
-                "required": [
-                  "seconds"
-                ],
-                "maxProperties": 1
-              },
-              {
-                "required": [
-                  "pts"
-                ],
-                "maxProperties": 1
-              }
-            ]
-          }
+            {
+              "required": [
+                "seconds"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "pts"
+              ],
+              "maxProperties": 1
+            }
+          ]
         },
         "stop_at": {
           "description": "Stop encoding at a given offset in seconds, frames, or pts (on a 90kHz clock) (e.g. seconds:10, frames:300, pts:900000). Units must match --start-at units, if specified",
@@ -226,6 +226,14 @@
         },
         "pfr": {
           "description": "Select peak frame rate control.",
+          "type": "boolean"
+        },
+        "enable_hw_decoding": {
+          "description": "Use 'nvdec' to enable 'nvdec'",
+          "type": "boolean"
+        },
+        "disable_hw_decoding": {
+          "description": "Disable hardware decoding of the video track forcing software decoding instead.",
           "type": "boolean"
         }
       },
@@ -824,7 +832,8 @@
           },
           "oneOf": [
             {
-              "minProperties": 1
+              "minProperties": 1,
+              "type": "object"
             },
             {
               "type": "boolean"
