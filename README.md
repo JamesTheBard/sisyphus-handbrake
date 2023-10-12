@@ -8,6 +8,10 @@ As with the other `sisyphus` modules, you can pass a JSON file to the parser and
 
 ## Implementation
 
+All of the option information is documented in the schema file.  Included is the JSON schema file in JSON and YAML formats.
+
+## Command Line Options
+
 For all of the options listed in the documentation/`-h` option, there are a few "gotchas".
 - All of the options use underscores instead of dashes.  For example, the `--ssa-offset` command-line option is `ssa_offset` in the schema file.  The only two that significantly changed were the `--maxHeight` and `--maxWidth` options which were camel-cased for some odd reason.  They were renamed to `max_height` and `max_width`.
 
@@ -20,7 +24,7 @@ For all of the options listed in the documentation/`-h` option, there are a few 
     - `filters_options`
     - `subtitles_options`
 
-- The source file and the destination files use the standard naming conventions of `source` and `output_file`.  These have been removed from `source_options` and `destination_options` respectively.
+- The source file and the destination files use the standard naming conventions of `source` and `output_file` for `sisyphus` modules.  These have been removed from `source_options` and `destination_options` respectively.
 
 - Any option that specified listing tracks separated by commas have turned into arrays of values.  For example, the `--audio` option specifies that you select the audio tracks you want to process separated by commas (e.g. `--audio 1,2,3`).  For `sisyphus-json`, this turns into the following object:
 
@@ -49,6 +53,18 @@ For all of the options listed in the documentation/`-h` option, there are a few 
 
 - Command-line options that have a corresponding `--no-` prefix can simply be set via the regular version of the command-line option.  For example, the `--keep-display-aspect` has an opposite command-line option called `--no-kee-display-aspect`.  In the JSON, you can just set `keep_display_aspect` to `false` for the same result.  This also applies to options like `bwdif`.
 
+    ```python
+    {
+        "keep_display_aspect": False
+    }
+    ```
+
 - The `--pixel-aspect` setting does still use the `<par_x:par_y>` formatting (e.g. `3:2`) as it made more sense to keep it that way.
+
+    ```python
+    {
+        "pixel_aspect": "3:2"
+    }
+    ```
 
 - The `--crop` setting also breaks out into an object with four attributes: `up`, `down`, `left`, and `right`.  The order you specify them in does not matter.
