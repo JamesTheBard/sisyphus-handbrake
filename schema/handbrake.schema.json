@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "1.6.1",
   "title": "Sisyphus Handbrake Schema",
   "description": "The Sisyphus HandbrakeCLI schema to import `handbrake` options.",
   "type": "object",
@@ -461,7 +462,7 @@
           "type": "boolean"
         },
         "modulus": {
-          "description": " Set storage width and height modulus. Dimensions will be made divisible by this number (default: set by preset, typically 2)",
+          "description": "Set storage width and height modulus. Dimensions will be made divisible by this number (default: set by preset, typically 2)",
           "type": "integer"
         },
         "color_matrix": {
@@ -475,7 +476,8 @@
             "pal"
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "filters_options": {
       "description": "Source processing filter options for HandBrake",
@@ -502,46 +504,47 @@
               "properties": {
                 "mode": {
                   "description": "Comb detect mode",
-                  "type": "integer",
+                  "type": "number",
                   "default": 3
                 },
                 "spatial_metric": {
                   "description": "Comb detect spatial metric",
-                  "type": "integer",
+                  "type": "number",
                   "default": 2
                 },
                 "motion_thresh": {
                   "description": "Comb detect motion threshold",
-                  "type": "integer",
+                  "type": "number",
                   "default": 1
                 },
                 "spatial_thresh": {
                   "description": "Comb detect spatial threshold",
-                  "type": "integer",
+                  "type": "number",
                   "default": 1
                 },
                 "filter_mode": {
                   "description": "Comb detect filter mode",
-                  "type": "integer",
+                  "type": "number",
                   "default": 2
                 },
                 "block_thresh": {
                   "description": "Comb detect block threshold",
-                  "type": "integer",
+                  "type": "number",
                   "default": 40
                 },
                 "block_width": {
                   "description": "Comb detect block width",
-                  "type": "integer",
+                  "type": "number",
                   "default": 16
                 },
                 "block_height": {
                   "description": "Comb detect block height",
-                  "type": "integer",
+                  "type": "number",
                   "default": 16
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "minProperties": 1
             }
           },
           "oneOf": [
@@ -567,7 +570,10 @@
         },
         "deinterlace": {
           "description": "Deinterlace video using FFmpeg yadif.",
-          "type": "object",
+          "type": [
+            "object",
+            "boolean"
+          ],
           "properties": {
             "preset": {
               "description": "Ffmpeg yadif preset to use.",
@@ -578,14 +584,22 @@
                 "qsv"
               ]
             },
-            "mode": {
-              "description": "Deinterlace mode",
-              "type": "integer",
-              "default": 3
-            },
-            "parity": {
-              "description": "Deinterlace parity",
-              "type": "integer"
+            "custom": {
+              "description": "The custom Ffmpeg yadif settings to use.",
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "description": "Deinterlace mode",
+                  "type": "number",
+                  "default": 3
+                },
+                "parity": {
+                  "description": "Deinterlace parity",
+                  "type": "number"
+                }
+              },
+              "minProperties": 1,
+              "additionalProperties": false
             }
           },
           "oneOf": [
@@ -596,11 +610,13 @@
               "maxProperties": 1
             },
             {
-              "not": {
-                "required": [
-                  "preset"
-                ]
-              }
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
             }
           ],
           "additionalProperties": false
@@ -608,7 +624,8 @@
         "bwdif": {
           "description": "Deinterlace video using FFmpeg bwdif.",
           "type": [
-            "object"
+            "object",
+            "boolean"
           ],
           "properties": {
             "preset": {
@@ -618,14 +635,22 @@
                 "bob"
               ]
             },
-            "mode": {
-              "description": "The FFmpeg bwdif mode to use.",
-              "type": "integer",
-              "default": 3
-            },
-            "parity": {
-              "description": "The Ffmpeg bwdif parity to use.",
-              "type": "integer"
+            "custom": {
+              "description": "The FFmpeg bwdif custom settings to use.",
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "description": "The FFmpeg bwdif mode to use.",
+                  "type": "number",
+                  "default": 3
+                },
+                "parity": {
+                  "description": "The Ffmpeg bwdif parity to use.",
+                  "type": "number"
+                }
+              },
+              "minProperties": 1,
+              "additionalProperties": false
             }
           },
           "oneOf": [
@@ -636,14 +661,959 @@
               "maxProperties": 1
             },
             {
-              "not": {
-                "required": [
-                  "preset"
-                ]
-              }
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
             }
           ],
           "additionalProperties": false
+        },
+        "decomb": {
+          "description": "Deinterlace video using a combination of yadif, blend, cubic, or EEDI2 interpolation.",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "properties": {
+            "preset": {
+              "description": "The deinterlacing preset to use.",
+              "type": "string",
+              "enum": [
+                "bob",
+                "eedi2",
+                "eedi2bob"
+              ]
+            },
+            "custom": {
+              "description": "The deinterlacing custom format to use.",
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "description": "The custom deinterlacing mode.",
+                  "type": "number",
+                  "default": 7
+                },
+                "magnitude_thresh": {
+                  "description": "The magnitude threshold to use.",
+                  "type": "number"
+                },
+                "laplacian_thresh": {
+                  "description": "The laplacian threshold to use.",
+                  "type": "number"
+                },
+                "variance_thresh": {
+                  "description": "The variance threshold to use.",
+                  "type": "number"
+                },
+                "dilation_thresh": {
+                  "description": "The dilation threshold to use.",
+                  "type": "number"
+                },
+                "erosion_thresh": {
+                  "description": "The erosion threshold to use.",
+                  "type": "number"
+                },
+                "noise_thresh": {
+                  "description": "The noise threshold to use.",
+                  "type": "number"
+                },
+                "search_distance": {
+                  "description": "The search distance to use.",
+                  "type": "number"
+                },
+                "postproc": {
+                  "description": "The post processing setting to use.",
+                  "type": "number"
+                },
+                "parity": {
+                  "description": "The parity setting to use.",
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "detelecine": {
+          "description": "Detelecine (ivtc) video with pullup filter. Note: this filter drops duplicate frames to restore the pre-telecine framerate, unless you specify a constant framerate.",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "properties": {
+            "skip_left": {
+              "description": "Skip left setting for IVTC",
+              "type": "number",
+              "default": 1
+            },
+            "skip_right": {
+              "description": "Skip right setting for IVTC",
+              "type": "number",
+              "default": 1
+            },
+            "skip_top": {
+              "description": "Skip top setting for IVTC",
+              "type": "number",
+              "default": 4
+            },
+            "skip_bottom": {
+              "description": "Skip bottom setting for IVTC",
+              "type": "number",
+              "default": 4
+            },
+            "strict_breaks": {
+              "description": "Strict breaks setting for IVTC",
+              "type": "number"
+            },
+            "plane": {
+              "description": "The plane setting for IVTC",
+              "type": "number",
+              "default": 0
+            },
+            "parity": {
+              "description": "The parity setting for IVTC",
+              "type": "number"
+            },
+            "disable": {
+              "description": "Disable IVTC",
+              "type": "number"
+            }
+          },
+          "oneOf": [
+            {
+              "minProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "hqdn3d": {
+          "description": "Denoise video with `hqdn3d` filter",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "properties": {
+            "preset": {
+              "description": "The hqdb3d filter preset to use",
+              "type": "string",
+              "enum": [
+                "ultralight",
+                "light",
+                "medium",
+                "strong"
+              ]
+            },
+            "custom": {
+              "description": "The custom hqdb3d filter to use",
+              "type": "object",
+              "properties": {
+                "y_spatial": {
+                  "description": "The Y-spatial setting to use.",
+                  "type": "number",
+                  "default": 3
+                },
+                "cb_spatial": {
+                  "description": "The CB-spatial setting to use.",
+                  "type": "number",
+                  "default": 2
+                },
+                "cr_spatial": {
+                  "description": "The CR-spatial setting to use.",
+                  "type": "number",
+                  "default": 2
+                },
+                "y_temporal": {
+                  "description": "The Y-temporal setting to use.",
+                  "type": "number",
+                  "default": 2
+                },
+                "cb_temporal": {
+                  "description": "The CB-temporal setting to use.",
+                  "type": "number",
+                  "default": 3
+                },
+                "cr_temporal": {
+                  "description": "The CR-temporal setting to use.",
+                  "type": "number",
+                  "default": 3
+                }
+              },
+              "minProperties": 1,
+              "additionalProperties": false
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "nlmeans": {
+          "description": "Denoise video with NLMeans filter",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "properties": {
+            "preset": {
+              "description": "The NLMeans filter preset to use.",
+              "type": "string",
+              "enum": [
+                "ultralight",
+                "light",
+                "medium",
+                "strong"
+              ]
+            },
+            "custom": {
+              "description": "The custom NLMeans filter settings to use.",
+              "type": "object",
+              "properties": {
+                "y_strength": {
+                  "description": "The 'y-strength' setting to use.",
+                  "type": "number",
+                  "default": 6
+                },
+                "y_origin_tune": {
+                  "description": "The 'y-origin-tune' setting to use.",
+                  "type": "number",
+                  "default": 1
+                },
+                "y_patch_size": {
+                  "description": "The 'y-patch-size' setting to use.",
+                  "type": "number",
+                  "default": 7
+                },
+                "y_range": {
+                  "description": "The 'y-range' setting to use.",
+                  "type": "number",
+                  "default": 3
+                },
+                "y_frame_count": {
+                  "description": "The 'y-frame-count' setting to use.",
+                  "type": "number",
+                  "default": 2
+                },
+                "y_prefilter": {
+                  "description": "The 'y-prefilter' setting to use.",
+                  "type": "number",
+                  "default": 0
+                },
+                "cb_strength": {
+                  "description": "The 'cb-strength' setting to use.",
+                  "type": "number",
+                  "default": 6
+                },
+                "cb_origin_tune": {
+                  "description": "The 'cb-origin-tune' setting to use.",
+                  "type": "number",
+                  "default": 1
+                },
+                "cb_patch_size": {
+                  "description": "The 'cb-patch-size' setting to use.",
+                  "type": "number",
+                  "default": 7
+                },
+                "cb_range": {
+                  "description": "The 'cb-range' setting to use.",
+                  "type": "number",
+                  "default": 3
+                },
+                "cb_frame_count": {
+                  "description": "The 'cb-frame-count' setting to use.",
+                  "type": "number",
+                  "default": 2
+                },
+                "cb_prefilter": {
+                  "description": "The 'cb-prefilter' setting to use.",
+                  "type": "number",
+                  "default": 0
+                },
+                "cr_strength": {
+                  "description": "The 'cr-strength' setting to use.",
+                  "type": "number"
+                },
+                "cr_origin_tune": {
+                  "description": "The 'cr-origin-tune' setting to use.",
+                  "type": "number"
+                },
+                "cr_patch_size": {
+                  "description": "The 'cr-patch-size' setting to use.",
+                  "type": "number"
+                },
+                "cr_range": {
+                  "description": "The 'cr-range' setting to use.",
+                  "type": "number"
+                },
+                "cr_frame_count": {
+                  "description": "The 'cr-frame-count' setting to use.",
+                  "type": "number"
+                },
+                "cr_prefilter": {
+                  "description": "The 'cr-prefilter' setting to use.",
+                  "type": "number"
+                },
+                "threads": {
+                  "description": "The 'threads' setting to use.",
+                  "type": "number"
+                }
+              },
+              "minProperties": 1,
+              "additionalProperties": false
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "nlmeans_tune": {
+          "description": "Tune NLMeans filter to content type. Applies to NLMeans presets only (does not affect custom settings)",
+          "type": "string",
+          "enum": [
+            "none",
+            "film",
+            "grain",
+            "highmotion",
+            "animation",
+            "tape",
+            "sprite"
+          ]
+        },
+        "chroma_smooth": {
+          "description": "Sharpen video with chroma smooth filter",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "properties": {
+            "preset": {
+              "description": "The chroma smooth filter preset to use.",
+              "type": "string",
+              "enum": [
+                "ultralight",
+                "light",
+                "medium",
+                "strong",
+                "stronger",
+                "verystrong"
+              ]
+            },
+            "custom": {
+              "description": "The custom chroma smooth filter settings to use.",
+              "type": "object",
+              "properties": {
+                "cb_strength": {
+                  "description": "The 'cb-strength' value to use",
+                  "type": "number",
+                  "default": 1.2
+                },
+                "cb_size": {
+                  "description": "The 'cb-size' value to use",
+                  "type": "number",
+                  "default": 7
+                },
+                "cr_strength": {
+                  "description": "The 'cr-strength' value to use.",
+                  "type": "number"
+                },
+                "cr_size": {
+                  "description": "The 'cr-size' value to use.",
+                  "type": "number"
+                }
+              },
+              "additionalProperties": false,
+              "minProperties": 1
+            }
+          },
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "chroma_smooth_tune": {
+          "description": "Tune chroma smooth filter. Applies to chroma smooth presets only (does not affect custom settings)",
+          "type": "string",
+          "enum": [
+            "none",
+            "tiny",
+            "small",
+            "medium",
+            "wide",
+            "verywide"
+          ]
+        },
+        "unsharp": {
+          "description": "Sharpen video with unsharp filter",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "default": false,
+          "properties": {
+            "preset": {
+              "description": "The unsharp filter settings preset to use.",
+              "type": "string",
+              "enum": [
+                "ultralight",
+                "light",
+                "medium",
+                "strong",
+                "stronger",
+                "verystrong"
+              ]
+            },
+            "custom": {
+              "description": "The custom unsharp filter settings to use.",
+              "type": "object",
+              "properties": {
+                "y_strength": {
+                  "description": "The 'y-strength' value to use.",
+                  "type": "number",
+                  "default": 0.25
+                },
+                "y_size": {
+                  "description": "The 'y-size' value to use.",
+                  "type": "number",
+                  "default": 7
+                },
+                "cb_strength": {
+                  "description": "The 'cb-strength' value to use.",
+                  "type": "number",
+                  "default": 0.25
+                },
+                "cb_size": {
+                  "descriptoin": "The 'cb-size' value to use.",
+                  "type": "number",
+                  "default": 7
+                },
+                "cr_strength": {
+                  "description": "The 'cr-strength' value to use.",
+                  "type": "number"
+                },
+                "cr_size": {
+                  "descriptoin": "The 'cr-size' value to use.",
+                  "type": "number"
+                }
+              },
+              "additionalProperties": false,
+              "minProperties": 1
+            }
+          },
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "unsharp_tune": {
+          "description": "Tune unsharp filter. Applies to unsharp presets only (does not affect custom settings)",
+          "type": "string",
+          "enum": [
+            "none",
+            "ultrafine",
+            "fine",
+            "medium",
+            "coarse",
+            "verycoarse"
+          ]
+        },
+        "lapsharp": {
+          "description": "Sharpen video with lapsharp filter",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "default": false,
+          "properties": {
+            "preset": {
+              "description": "The lapsharp filter preset to use.",
+              "type": "string",
+              "enum": [
+                "ultralight",
+                "light",
+                "medium",
+                "strong",
+                "stronger",
+                "verystrong"
+              ]
+            },
+            "custom": {
+              "description": "The custom lapsharp filter settings to use.",
+              "type": "object",
+              "properties": {
+                "y_strength": {
+                  "description": "The 'y-strength' value to use.",
+                  "type": "number",
+                  "default": 0.2
+                },
+                "y_kernel": {
+                  "description": "The 'y-kernel' value to use.",
+                  "type": "string",
+                  "default": "isolap"
+                },
+                "cb_strength": {
+                  "description": "The 'cb-strength' value to use.",
+                  "type": "number",
+                  "default": 0.2
+                },
+                "cb_kernel": {
+                  "description": "The 'cb-kernel' value to use.",
+                  "type": "string",
+                  "default": "isolap"
+                },
+                "cr_strength": {
+                  "description": "The 'cr-strength' value to use.",
+                  "type": "number"
+                },
+                "cr_kernel": {
+                  "description": "The 'cr-kernel' value to use.",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "minProperties": 1
+            }
+          },
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "lapsharp_tune": {
+          "description": "Tune lapsharp filter. Applies to lapsharp presets only (does not affect custom settings)",
+          "type": "string",
+          "enum": [
+            "none",
+            "film",
+            "grain",
+            "animation",
+            "sprite"
+          ]
+        },
+        "deblock": {
+          "description": "Deblock video with avfilter deblock",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "default": false,
+          "properties": {
+            "preset": {
+              "description": "The avfilter deblock preset to use.",
+              "type": "string",
+              "enum": [
+                "ultralight",
+                "light",
+                "medium",
+                "strong",
+                "stronger",
+                "verystrong"
+              ]
+            },
+            "custom": {
+              "description": "The custom avfilter deblock settings to use.",
+              "type": "object",
+              "properties": {
+                "strength": {
+                  "description": "The 'strength' setting to use.",
+                  "type": "string",
+                  "default": "strong"
+                },
+                "thresh": {
+                  "description": "The 'thresh' value to use.",
+                  "type": "number",
+                  "default": 20
+                },
+                "blocksize": {
+                  "description": "The 'blocksize' value to use.",
+                  "type": "number"
+                },
+                "disable": {
+                  "description": "The 'disable' value to use.",
+                  "type": "number"
+                }
+              },
+              "minProperties": 1,
+              "additionalProperties": false
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "preset"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "required": [
+                "custom"
+              ],
+              "maxProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "deblock_tune": {
+          "description": "Tune deblock filter. Applies to deblock presets only (does not affect custom settings)",
+          "type": "string",
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ]
+        },
+        "rotate": {
+          "description": "Rotate image or flip its axes.",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "default": false,
+          "properties": {
+            "angle": {
+              "description": "The angle to rotate.  The angles can be 0, 90, 180, 270.",
+              "type": "integer",
+              "multipleOf": 90,
+              "minimum": 0,
+              "maximum": 270,
+              "default": 180
+            },
+            "hflip": {
+              "description": "Flip the image on the x-axis (horizontally)",
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "type": "object",
+              "minProperties": 1
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "pad": {
+          "description": "Pad image with borders (e.g. letterbox). The padding color may be set (default black). Color may be an HTML color name or RGB value. The position of image in pad may also be set.",
+          "type": "object",
+          "properties": {
+            "width": {
+              "description": "The 'width' padding setting.",
+              "type": "integer"
+            },
+            "height": {
+              "description": "The 'height' padding setting.",
+              "type": "integer"
+            },
+            "color": {
+              "description": "The 'color' of the padding. Color may be an HTML color name or RGB value.",
+              "type": "string"
+            },
+            "x": {
+              "description": "The 'x' position of the image in the padding.",
+              "type": "integer"
+            },
+            "y": {
+              "description": "The 'y' position of the image in the padding.",
+              "type": "integer"
+            },
+            "top": {
+              "description": "The 'top' setting for the padding.",
+              "type": "integer"
+            },
+            "bottom": {
+              "description": "The 'bottom' setting for the padding.",
+              "type": "integer"
+            },
+            "left": {
+              "description": "The 'left' setting for the padding.",
+              "type": "integer"
+            },
+            "right": {
+              "description": "The 'right' setting for the padding.",
+              "type": "integer"
+            }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "colorspace": {
+          "description": "Convert colorspace, transfer characteristics or color primaries.",
+          "type": "string",
+          "enum": [
+            "bt2020",
+            "bt709",
+            "bt601-6-525",
+            "bt601-6-625"
+          ]
+        },
+        "grayscale": {
+          "description": "Enable grayscale encoding",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "subtitles_options": {
+      "description": "The subtitle processing options for HandBrake",
+      "type": "object",
+      "properties": {
+        "subtitle_lang_list": {
+          "description": "Specify a comma separated list of subtitle languages you would like to select from the source title. By default, the first subtitle matching each language will be added to your output. Provide the language's ISO 639-2 code (e.g. fre, eng, spa, dut, et cetera)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "all_subtitles": {
+          "description": "Select all subtitle tracks matching languages in the specified language list",
+          "type": "boolean"
+        },
+        "first_subtitles": {
+          "description": "Select first subtitle track matching languages in the specified language list",
+          "type": "boolean"
+        },
+        "subtitle": {
+          "description": "Select subtitle track(s) as a list. More than one output track can be used for one input. Set to \"false\" no subtitles.",
+          "type": [
+            "boolean",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          },
+          "minItems": 1
+        },
+        "subname": {
+          "description": "Set subtitle track name(s).",
+          "type": "array",
+          "items": {
+            "description": "The subtitle track name.",
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "subtitle_forced": {
+          "description": "Only display subtitles from the selected stream if the subtitle has the forced flag set. The values in 'string' are indexes into the subtitle list specified with '--subtitle'. Separate tracks by commas. Example: '[1, 2, 3]' for multiple tracks. If 'string' is omitted, the first track is forced.",
+          "type": [
+            "boolean",
+            "array"
+          ],
+          "items": {
+            "description": "The subtitle track to use.",
+            "type": "integer"
+          },
+          "minItems": 1
+        },
+        "subtitle_burned": {
+          "description": "'Burn' the selected subtitle into the video track. If 'subtitle' is omitted, the first track is burned. 'subtitle' is an index into the subtitle list specified with '--subtitle' or 'native' to burn the subtitle track that may be added by the 'native-language' option.",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "subtitle_default": {
+          "description": "Flag the selected subtitle as the default subtitle to be displayed upon playback.  Setting no default means no subtitle will be displayed automatically. 'number' is an index into the subtitle list specified with '--subtitle'. 'none' may be used to override an automatically selected default subtitle track.",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "native_language": {
+          "description": "Specify your language preference. When the first audio track does not match your native language then select the first subtitle that does. When used in conjunction with --native-dub the audio track is changed in preference to subtitles. Provide the language's ISO 639-2 code (e.g. fre, eng, spa, dut, et cetera)",
+          "type": "string"
+        },
+        "native_dub": {
+          "description": "Used in conjunction with --native-language requests that if no audio tracks are selected the default selected audio track will be the first one that matches the --native-language. If there are no matching audio tracks then the first matching subtitle track is used instead.",
+          "type": "boolean"
+        },
+        "srt_file": {
+          "description": "SubRip SRT filename(s), separated by commas.",
+          "type": "array",
+          "items": {
+            "description": "SubRip SRT filename.",
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "srt_codeset": {
+          "description": "Character codeset(s) that the SRT file(s) are encoded as, separated by commas. If not specified, 'latin1' is assumed. Command 'iconv -l' provides a list of valid codesets.",
+          "type": "array",
+          "items": {
+            "description": "The character codeset to use.",
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "srt_offset": {
+          "description": "Offset (in milliseconds) to apply to the SRT file(s), separated by commas. If not specified, zero is assumed. Offsets may be negative.",
+          "type": "array",
+          "items": {
+            "description": "The track offset (in milliseconds)",
+            "type": "integer"
+          },
+          "minItems": 1
+        },
+        "srt_lang": {
+          "description": "SRT track language as an ISO 639-2 code (e.g. fre, eng, spa, dut, et cetera). If not specified, then 'und' is used. Separate by commas.",
+          "type": "array",
+          "items": {
+            "description": "The language code for the track",
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "srt_default": {
+          "description": "Flag the selected SRT as the default subtitle to be displayed during playback. Setting no default means no subtitle will be automatically displayed. If 'number' is omitted, the first SRT is the default. 'number' is a 1-based index into the 'srt-file' list.",
+          "type": [
+            "boolean",
+            "integer"
+          ]
+        },
+        "srt_burn": {
+          "description": "'Burn' the selected SRT subtitle into the video track. If 'number' is omitted, the first SRT is burned. 'number' is a 1-based index into the 'srt-file' list",
+          "type": [
+            "boolean",
+            "integer"
+          ]
+        },
+        "ssa_file": {
+          "description": "SubStationAlpha SSA filename(s), separated by commas.",
+          "type": "array",
+          "items": {
+            "description": "SubStationAlpha ASS/SSA filename.",
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "ssa_offset": {
+          "description": "Offset (in milliseconds) to apply to the SSA file(s), separated by commas. If not specified, zero is assumed. Offsets may be negative.",
+          "type": "array",
+          "items": {
+            "description": "Offset (in milliseconds) for the track.",
+            "type": "integer"
+          },
+          "minItems": 1
+        },
+        "ssa_lang": {
+          "description": "SSA track language as an ISO 639-2 code (e.g. fre, eng, spa, dut, et cetera). If not specified, then 'und' is used. Separate by commas.",
+          "type": "array",
+          "items": {
+            "description": "SSA track language (ISO 639-2 code).",
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "ssa_default": {
+          "description": "Flag the selected SSA as the default subtitle to be displayed during playback. Setting no default means no subtitle will be automatically displayed. If 'number' is omitted, the first SSA is the default. 'number' is a 1-based index into the 'ssa-file' list",
+          "type": [
+            "boolean",
+            "integer"
+          ]
+        },
+        "ssa_burn": {
+          "description": "'Burn' the selected SSA subtitle into the video track. If 'number' is omitted, the first SSA is burned. 'number' is a 1-based index into the 'ssa-file' list",
+          "type": [
+            "boolean",
+            "integer"
+          ]
         }
       }
     }
