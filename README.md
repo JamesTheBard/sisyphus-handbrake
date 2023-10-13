@@ -1,4 +1,6 @@
-# Introduction
+# Sisyphus Handbrake
+
+## Introduction
 
 - Schema based off of HandBrake CLI version **1.6.1**.
 
