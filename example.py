@@ -4,7 +4,7 @@ from loguru import logger
 from handbrake.parser import Parser
 
 handbrake_data = {
-    "source": "cool_video.mkv",
+    "source": "test.mkv",
     "output_file": "output.mkv",
     "video_options": {
         "encoder": "x265_10bit",
@@ -28,7 +28,7 @@ handbrake_data = {
 
 parser = Parser()
 try:
-    parser.validate_from_data(handbrake_data)
+    parser.load_from_object(handbrake_data)
 except jsonschema.ValidationError as e:
     logger.warning(f"ValidationError: {e.message}")
     logger.warning(f"Path to Error: {e.json_path}")
@@ -37,4 +37,4 @@ except jsonschema.SchemaError as e:
     logger.warning(f"Path to Error: {e.json_path}")
 
 command = parser.generate_command(as_string=True)
-print(command)
+parser.run()

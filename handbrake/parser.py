@@ -3,13 +3,20 @@ import os
 import platform
 import shlex
 import shutil
+import sys
 from pathlib import Path
 from typing import Any, List, Optional, Union
+import subprocess
+import time
+import re
+from handbrake.progress import progress
+from datetime import datetime
 
 import jsonschema
 import yaml
 from box import Box
 from loguru import logger
+from ffmpeg import Ffprobe
 
 # The location of the schema file
 schema_file = 'schema/handbrake.schema.yaml'
@@ -45,7 +52,7 @@ class Parser:
             binary = "HandBrakeCLI.exe" if platform.system() == "Windows" else "HandBrakeCLI"
             self.handbrake_path = Path(shutil.which(binary))
 
-    def validate_from_file(self, filepath: Union[Path, str]):
+    def load_from_file(self, filepath: Union[Path, str]):
         """Validate the HandBrakeCLI JSON options file against the HandBrake schema file.
 
         Args:
@@ -58,9 +65,9 @@ class Parser:
         filepath = Path(filepath)
         with filepath.open('r') as f:
             content = Box(json.load(f))
-        self.validate_from_data(content)
+        self.load_from_object(content)
 
-    def validate_from_data(self, data: Union[dict, Box]):
+    def load_from_object(self, data: Union[dict, Box]):
         """Validate the HandBrakeCLI JSON options data against the HandBrake schema file.
 
         Args:
@@ -299,3 +306,33 @@ class Parser:
             except:
                 custom_format.append(0)
         return ':'.join([str(i) for i in custom_format])
+
+    def run(self):
+        command = self.generate_command()
+        with progress:
+            
+            ffprobe = Ffprobe(self.data.source)
+            frames = ffprobe.get_streams("video")[0].frames
+            frames = frames if frames else None
+
+            task = progress.add_task("[red]HandBrake [yellow]>> [white]test.mkv", total=frames)
+
+            if "--json" not in command:
+                command.append("--json")
+            
+            try:
+                process = subprocess.Popen(
+                    command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                )
+            except KeyboardInterrupt:
+                sys.exit(1)
+
+            dt = datetime.now()
+            while True:
+                time.sleep(1)
+                if (return_code := process.poll()) is not None:
+                    break
+                for line in process.stdout:
+                    if match := re.search(r'"Progress": (\d+\.\d+)', line.decode()):
+                        completed_perc = float(match.group(1))
+                        progress.update(task, completed=int(completed_perc * frames))
