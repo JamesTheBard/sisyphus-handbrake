@@ -36,5 +36,7 @@ except jsonschema.SchemaError as e:
     logger.warning(f"SchemaError: {e.message}")
     logger.warning(f"Path to Error: {e.json_path}")
 
-command = parser.generate_command(as_string=True)
-parser.run()
+command: str = parser.generate_command(as_string=True)
+logger.debug(f"Command to run: {command}")
+
+parser.run(progress_bar=False)

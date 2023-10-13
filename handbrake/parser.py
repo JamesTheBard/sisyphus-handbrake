@@ -1,22 +1,38 @@
 import json
 import os
 import platform
+import re
 import shlex
 import shutil
+import subprocess
 import sys
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, List, Optional, Union
-import subprocess
-import time
-import re
-from handbrake.progress import progress
-from datetime import datetime
 
 import jsonschema
 import yaml
 from box import Box
-from loguru import logger
 from ffmpeg import Ffprobe
+from loguru import logger
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           SpinnerColumn, TaskProgressColumn, TextColumn,
+                           TimeElapsedColumn, TimeRemainingColumn)
+from rich.table import Column
+
+
+# The progress bar format
+progress = Progress(
+    SpinnerColumn(),
+    TextColumn("{task.description}"),
+    BarColumn(bar_width=None),
+    TaskProgressColumn(),
+    TimeElapsedColumn(),
+    TimeRemainingColumn(),
+    MofNCompleteColumn(),
+    expand=True
+)
 
 # The location of the schema file
 schema_file = 'schema/handbrake.schema.yaml'
@@ -102,12 +118,74 @@ class Parser:
         for k, v in self.data.items():
             if k in ['source', 'output_file']:
                 continue
-            logger.info(f"Processing '{k}'")
+            logger.debug(f"Processing '{k}'")
             f = getattr(self, f"process_{k}")
             command.extend(f())
         if as_string:
             return shlex.join(command)
         return command
+
+    def run(self, progress_bar: bool = True, verbose: bool = False) -> int:
+        """Run the HandBrakeCLI command.
+
+        Args:
+            progress_bar (bool, optional): Enable the progress bar output. Defaults to True.
+        """
+        
+        if progress_bar:
+            self.run_with_progress()
+            return
+        
+        command = self.generate_command()
+        if verbose:
+            process = subprocess.run(command)
+        else:
+            process = subprocess.run(command, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        return process.returncode
+
+    def run_with_progress(self) -> int:
+        """Run the HandBrakeCLI command.
+
+        Args:
+            progress_bar (bool, optional): Enable the progress bar output. Defaults to True.
+        """
+        command = self.generate_command()
+        with progress:
+
+            # Need to get the total number of frames in the video track for progress. This
+            # does require me to pull in `ffprobe`.
+            ffprobe = Ffprobe(self.data.source)
+            frames = ffprobe.get_streams("video")[0].frames
+            frames = frames if frames else None
+
+            task = progress.add_task(
+                "[red]HandBrake [yellow]>> [white]test.mkv", total=frames)
+
+            if "--json" not in command:
+                command.append("--json")
+
+            try:
+                process = subprocess.Popen(
+                    command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                )
+            except KeyboardInterrupt:
+                sys.exit(1)
+
+            working_state = False
+            while True:
+                time.sleep(1)
+                if (return_code := process.poll()) is not None:
+                    break
+                for line in process.stdout:
+                    if not working_state:
+                        if match := re.search(r'"WORKING"', line.decode()):
+                            working_state = True
+                    if (match := re.search(r'"Progress": (\d+\.\d+)', line.decode())) and working_state:
+                        completed_perc = float(match.group(1))
+                        encode_progress = int(completed_perc * frames) if frames else None
+                        progress.update(task, completed=encode_progress)
+            
+            return process.returncode
 
     def __convert_cli_option(self, option: str) -> str:
         """Convert the module's attribute format to the format that HandBrake expects for command-line options.
@@ -306,33 +384,3 @@ class Parser:
             except:
                 custom_format.append(0)
         return ':'.join([str(i) for i in custom_format])
-
-    def run(self):
-        command = self.generate_command()
-        with progress:
-            
-            ffprobe = Ffprobe(self.data.source)
-            frames = ffprobe.get_streams("video")[0].frames
-            frames = frames if frames else None
-
-            task = progress.add_task("[red]HandBrake [yellow]>> [white]test.mkv", total=frames)
-
-            if "--json" not in command:
-                command.append("--json")
-            
-            try:
-                process = subprocess.Popen(
-                    command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-                )
-            except KeyboardInterrupt:
-                sys.exit(1)
-
-            dt = datetime.now()
-            while True:
-                time.sleep(1)
-                if (return_code := process.poll()) is not None:
-                    break
-                for line in process.stdout:
-                    if match := re.search(r'"Progress": (\d+\.\d+)', line.decode()):
-                        completed_perc = float(match.group(1))
-                        progress.update(task, completed=int(completed_perc * frames))
