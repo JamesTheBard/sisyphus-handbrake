@@ -39,4 +39,4 @@ except jsonschema.SchemaError as e:
 command: str = parser.generate_command(as_string=True)
 logger.debug(f"Command to run: {command}")
 
-parser.run(progress_bar=False)
+parser.run()
