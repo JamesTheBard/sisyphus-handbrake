@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sisyphus-handbrake"
-version = "1.0.0"
+version = "1.0.1"
 description = "A Python wrapper for the `HandBrakeCLI` binary. Features JSON schema validation, slightly above-average documentation, and a very pretty progress bar."
 authors = ["JamesTheBard <jamesthebard@gmail.com>"]
 readme = "README.md"
