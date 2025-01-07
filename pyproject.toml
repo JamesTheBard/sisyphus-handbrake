@@ -8,8 +8,8 @@ packages = [
     {include = "handbrake"}
 ]
 include = [
-    "handbrake/schema/handbrake.schema.json",
-    "handbrake/schema/handbrake.schema.yaml",
+    {path = "handbrake/schema/handbrake.schema.json", format = ["sdist", "wheel"]},
+    {path = "handbrake/schema/handbrake.schema.yaml", format = ["sdist", "wheel"])
 ]
 
 [tool.poetry.dependencies]
